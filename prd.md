@@ -1,104 +1,91 @@
-# Courier — send money to a name, not an address
+Bazaar — the marketplace where AI hires
+One-liner: Give an AI a task and it hires whatever it needs — data, compute, real-world actions, even people — paying per request in USDC on Solana. No signup, no API keys, no human in the loop.
 
-**One-liner:** Type `/send @alex 20` in any chat. Alex has it a second later — no wallet, no app, no signup.
+1. Problem
+AI can think, but it can't buy anything.
 
----
+Every tool an agent can reach was wired up in advance by a human who signed up for a service, got a key, and put a credit card on file. That's the ceiling on what agents can do: not intelligence, but purchasing. An agent that needs a capability nobody pre-arranged for it simply fails.
 
-## 1. Problem
+It's a money problem wearing a technology costume. Banks don't issue accounts to software. Cards can't process a third of a cent — the fee exceeds the charge. So every AI-to-service connection requires a human, a contract, and a minimum transaction size, and none of those scale to millions of agents making millions of tiny purchases.
 
-Every payment app is a walled garden. To pay someone, they must already be on your app: account opened, identity verified, bank connected. If they're not, the payment doesn't happen — you fall back to "I'll get you next time," or to a wire, or to Western Union at 6%.
+2. Solution
+An open market where agents discover services, compare posted prices, pay per request, and get work back — in one round trip, with no account relationship on either side.
 
-Crypto was supposed to fix this and made it worse. You now need a wallet, a seed phrase, a native token for gas, and the willingness to paste a 44-character address into a chat and hope you got it right. The people who most need cheap, instant, borderless money movement are exactly the people who will never do any of that.
+The loop:
 
-## 2. Solution
+Agent needs a capability it doesn't have.
+It queries the registry for listings matching that capability, with prices.
+It selects one — cheapest, or best value within its budget.
+It calls the endpoint and receives 402 Payment Required with a price and address.
+It pays USDC on Solana. Sub-second, fees sponsored.
+It retries with proof of payment and gets the work.
+Sellers list a capability, an endpoint, and a price. That's the entire onboarding — no contract, no invoicing, no sales call, no knowledge of crypto required beyond an address to be paid at.
 
-A Telegram bot that moves money by @handle.
+Why this has to be crypto, in one sentence: software needs to hold money and pay other software in fractions of a cent, instantly, with no account relationship — and there is no other mechanism that does all four.
 
-You send to a person, not an address. If the recipient has nothing, a wallet is created for them in the act of receiving — no install, no seed phrase, no signup. Fees are sponsored, so people transact in dollars and never learn what SOL is. The money is real, it settles in under a second, and it costs a fraction of a cent.
+3. Users
+Buyers: anyone building agents that keep hitting the wall of "it can only use the tools I hand-wired."
 
-**Why this can't be built on bank rails:** paying someone who isn't already a user requires them to open an account and pass KYC first. A stablecoin wallet can be created *in the moment money arrives*, for anyone, anywhere, at effectively zero marginal cost. That single property is the entire product.
+Sellers: developers with a useful capability, niche data owners, and — distinctively — humans selling micro-work to machine customers. A person who verifies a photo in 60 seconds for five cents is a valid listing, and that's how the market handles everything AI can't do.
 
-## 3. Users
+4. Business case
+Model: take rate on gross marketplace volume, 2–5%. Marketplaces don't need an invented business model.
 
-**Wedge:** people who already send money inside group chats — friends splitting costs, families sending money home, online communities paying contributors.
+Flywheel: more listings make the market more useful to agents → more agent spend attracts more sellers → more coverage means agents route more work through the market rather than failing. Agent demand is growing on its own; we're not creating it, we're capturing it.
 
-**Expansion:** any business that needs to pay many small amounts to many people across many countries.
+The novel supply side: a solo developer can put a capability online with a price and earn from customers who are software, with no sales process. That's a new income surface that didn't exist, and it's the part of the story that makes people care beyond the tech.
 
-## 4. Business case
+Market: x402 handled roughly 165M agent transactions and ~$50M cumulative volume by April 2026, with Solana carrying about half of it. The rail is real and growing fast. What doesn't exist on top of it is a market with discovery, price competition, quality signal, and human supply.
 
-**The flywheel:** most users never fund a wallet — they get paid, then pay onward. One person on-ramps and their whole chat is seeded for free. Acquisition cost is one on-ramp per social cluster, not per user. Businesses paying out create consumer users as a byproduct, and those users transact with each other. The B2B side buys the B2C growth.
+Why we're not just Pay.sh or x402. x402 is a payment protocol — the handshake, not the market. Pay.sh (Solana Foundation and Google Cloud, launched May 2026) is the closest thing: a directory where agents discover paid APIs. It's a catalog. What a market needs and a catalog doesn't have is reputation and routing (which seller actually returns good work), refunds on failure (an agent that pays for garbage should get its money back), human sellers, composite listings (agents reselling agents), and budget policy (spend rules the agent can't exceed). We build on the rail rather than competing with it — and the reputation layer is the part that's defensible, because it can only be earned over transaction history.
 
-**Business use case — bulk contributor payouts.** A company, DAO, or creator needs to pay 200 people small amounts across 40 countries. Today: collect bank details from everyone, eat PayPal fees and wire minimums, lose days, and fail entirely in half those countries. With Courier: paste handles and amounts, one command, everyone paid in seconds for cents — and recipients need nothing but a Telegram account. This is a real budget line that real organizations pay real money to solve today.
+Competition generally: Stripe, Coinbase, Visa, and Google have all shipped rails in this direction. Rails commoditize. The market and the trust layer on top is a different business, and it's the one that keeps its margin.
 
-**Revenue model** (the Cash App shape — free P2P as growth, margin elsewhere):
+5. Product
+Core flows
 
-| Line | Mechanism | Notes |
-|---|---|---|
-| Domestic P2P | Free | Growth engine, not revenue |
-| Cross-border | ~1% FX spread | Corridors cost ~6% today; 1% is a 6× improvement and still a strong take rate |
-| Business payouts | Per-payout or monthly tier | Displaces a cost center, not a nice-to-have |
-| Instant cash-out | Flat/percentage fee | Proven behavior at Venmo and Cash App |
-| Card interchange | ~1% on spend | Long-term margin; also removes the need to off-ramp at all |
+GET /listings?capability= — discover services with posted prices
+402 payment handshake, then delivery on retry with proof
+USDC settlement on Solana, fees sponsored so nobody holds SOL
+Self-serve listing: capability, endpoint, price, payout address
+Orchestrator SDK: decompose a task, route on price within a budget cap
+Live graph of the market — nodes, edges, dollars moving
+Roadmap: reputation scores from transaction history · escrow with refund-on-failure · human-worker listings with instant payout · budget and allow-list policies · counteroffer negotiation
 
-**Market:** global remittances run roughly $800B+ annually at an average cost near 6%. Telegram has on the order of a billion monthly users, heavily concentrated in exactly the markets where banking is worst. Contributor and creator payouts are a fast-growing, cross-border, badly served category.
+6. Scope tonight
+In: listing registry with posted prices · 402 handshake · real USDC settlement on Solana with sponsored fees · orchestrator that decomposes a task and selects on price inside a budget cap · self-serve listing registration · live market graph · five seeded listings — one sub-cent data lookup, one compute job with visible output, one SMS send, one human-in-the-loop, one composite agent that resells three others
 
-**Competition, honestly:** Venmo and Cash App are domestic and closed. Wise is excellent but account-based, not chat-native. Telegram's own wallet and TON are the sharpest competitor — our differentiation is delivery to people who have *nothing*, the group primitives that follow, and Solana's cost and finality. WhatsApp Pay has limited rollout and no bot platform.
+Out, explicitly: reputation · escrow and refunds · fiat on-ramp · accounts and auth · negotiation · any chain but Solana · seller payout scheduling
 
-## 5. Product
+7. Demo (3 min, live)
+Graph already moving on screen. Don't explain it.
+Take a task from a judge, out loud.
+Agents route, pay, and return work — dollars crossing the graph while you narrate.
+Budget beat: take the cheapest seller offline mid-run. The orchestrator refuses the expensive one because it breaks the budget cap, and finds a third. A market clearing in real time.
+Human beat: a listing gets hired and a person in the room answers it and gets paid.
+Audience beat: someone registers their own listing live, and thirty seconds later software that had never heard of them has hired and paid them.
+Receipt: agents involved, paid calls, total cost in cents, explorer link. "No contracts, no API keys, no accounts. Agents can't get bank accounts — and they never will."
+8. Stack and partners
+Solana + USDC for settlement, x402-style handshake. QuickNode for RPC and webhook confirmations feeding the live graph — one transaction per paid call, so real throughput. OKX for seller cash-out and self-custody. Fee sponsorship so no participant needs SOL. Built end to end in Cursor.
 
-**Core flows**
+9. Risks
+Risk	Mitigation
+Cold start — no sellers, no market	Seed five listings; live audience registration is the proof supply can grow
+Sellers returning garbage or scamming	Reputation from transaction history, escrow with refund-on-failure (30-day priority)
+Prompt injection via listing responses	Treat all seller output as untrusted data, never instructions; sandbox and schema-validate
+Pay.sh or a platform absorbing the category	Build on the rail; own reputation, human supply, and routing
+Custody of marketplace funds	Non-custodial escrow, direct seller settlement, no funds on our books
+Sub-cent unit economics	Only viable on a chain with near-zero fees and sub-second finality
+10. Self-described milestones
+2 weeks — mainnet-beta deploy, repository open-sourced, 25 live listings, 1,000 paid calls, weekly public updates started
+30 days — reputation scores and refund-on-failure escrow live, 100 listings
+60 days — human-worker listings with instant payout, first $1,000 of marketplace volume
+90 days — budget policies and a published agent SDK, 10,000 paid calls per week
+11. Success metrics
+Tonight: paid calls settled, dollars moved, listings registered by people who aren't us.
 
-- `/send @handle <amount>` — pay by handle; recipient wallet auto-created on first receive
-- `/balance` — balance in dollars
-- `/deposit` — deposit address plus Solana Pay QR
-- `/withdraw <amount> <address>` — out to any wallet or exchange
-- Sponsored gas on every transaction; users never need SOL
-- Embedded per-user wallet keyed to Telegram identity, with key export
+Ongoing: share of volume going to third-party listings — the number that proves it's a market and not a demo — plus repeat buyers and refund rate.
 
-**Roadmap flows:** Apple Pay funding · `/split` in group chats · group pots with approvals · bulk payout for businesses · card that spends the balance directly
-
-## 6. Scope
-
-**In:** send by handle · wallet-on-receive · sponsored gas · deposit address + QR · withdraw to any address · treasury drop of $0.25 to each new member so the room is instantly funded · live counter of wallets created, transactions, and volume
-
-**Out, explicitly:** fiat on-ramp and KYC · the card · split, pots, tandas · business bulk payout · account recovery
-
-## 7. Demo (3 min, live)
-
-1. QR on the projector — the room joins the group. Member count climbs on screen.
-2. Bot drops $0.25 on each new member. Everyone has money before we've explained anything.
-3. Hand a judge the phone: `/send @nicky 1`. Settles in under a second; bot posts the explorer link in-thread.
-4. Find someone in the room who has never touched crypto. They receive. Wallet created. Nothing installed, no seed phrase, no gas.
-5. **"Nobody in this room owns any SOL, and every transaction you just watched worked."**
-6. Close on the counter: wallets created tonight, transactions, dollars moved.
-
-## 8. Stack and partners
-
-Solana + USDC for settlement. **QuickNode** for RPC and webhook confirmations posted back into chat — one transaction per message means real throughput. **OKX** as deposit and cash-out path and the graduate-to-self-custody destination. **Solana Pay** for the deposit QR. Embedded wallets for per-user keys. Built end to end in **Cursor**.
-
-## 9. Risks
-
-| Risk | Mitigation |
-|---|---|
-| Custody / money transmission | User-held embedded keys, key export, every fiat leg through licensed partners — no customer funds on our books |
-| Telegram rate limits under load | Batch confirmations; pinned live counter instead of a message per transaction |
-| Sybil farming the welcome drop | One drop per account, rate-limited, capped total |
-| Account loss = fund loss | Recovery path via passkey and export — first-30-day priority |
-| Platform dependence on Telegram | Same graph model ports to WhatsApp Business API |
-
-## 10. Self-described milestones
-
-- **2 weeks** — mainnet-beta deploy, repository open-sourced, first 100 wallets created, weekly public update cadence started
-- **30 days** — Apple Pay funding live, 500 users, account recovery shipped
-- **60 days** — bulk payout command live, first paying business customer
-- **90 days** — group primitives (split, pots), first cross-border corridor with FX pricing
-
-## 11. Success metrics
-
-**Tonight:** wallets created for people who had never used Solana, transactions settled, dollars moved.
-
-**Ongoing:** share of users who were *created by receiving* rather than by signing up — the number that proves the flywheel.
-
-## 12. Why this team
-
+12. Why this team
 We shipped a working version in a single evening. The grant asks for projects that yield results quickly and are executable by the proposing team; the product is the evidence for both. We intend to open-source shortly after mainnet deploy.
+
