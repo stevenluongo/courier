@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.flow-line {
+  animation: flowDash 0.6s linear infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    stroke-opacity: 0.6;
+    r: 12;
+  }
+  100% {
+    stroke-opacity: 0;
+    r: 26;
+  }
+}
+.pulse-ring {
+  animation: pulseRing 1.6s ease-out infinite;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

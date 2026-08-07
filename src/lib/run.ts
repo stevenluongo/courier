@@ -137,6 +137,7 @@ async function crowdCountRun(run: RunState) {
   await sleep(1400);
 
   // Step 1 — event lookup
+  emit("step", { index: 0, state: "active" });
   log("[1/5] Need: event lookup → querying registry for capability: web_search", "think");
   await sleep(900);
   const search = getListing("exa-search")!;
@@ -147,6 +148,8 @@ async function crowdCountRun(run: RunState) {
   await sleep(1300);
 
   // Step 2 — baseline
+  emit("step", { index: 0, state: "done" });
+  emit("step", { index: 1, state: "active" });
   log("[2/5] Need: expected attendance → same seller, follow-up query", "think");
   await hireAndPay(run, search, "attendance baseline");
   await sleep(900);
@@ -154,6 +157,8 @@ async function crowdCountRun(run: RunState) {
   await sleep(1400);
 
   // Step 3 — the realization + human hire
+  emit("step", { index: 1, state: "done" });
+  emit("step", { index: 2, state: "active" });
   log("[3/5] Need: current headcount at the venue", "think");
   await sleep(1200);
   log("Checked 74 API listings for real-time occupancy… none can observe a private venue.", "alert");
@@ -226,6 +231,8 @@ async function crowdCountRun(run: RunState) {
   await sleep(1300);
 
   // Step 4 — vision, with the budget beat
+  emit("step", { index: 2, state: "done" });
+  emit("step", { index: 3, state: "active" });
   log("[4/5] Need: headcount from image → querying registry for capability: vision", "think");
   await sleep(1000);
   const remaining = run.budgetUsd - run.spentUsd;
@@ -242,10 +249,13 @@ async function crowdCountRun(run: RunState) {
   await sleep(1400);
 
   // Step 5 — synthesis
+  emit("step", { index: 3, state: "done" });
+  emit("step", { index: 4, state: "active" });
   log("[5/5] Synthesis:", "think");
   await sleep(800);
   const pct = Math.round((count / 250) * 100);
   const answer = `~${count} people at Ship Night right now — about ${pct}% of the 250 registered still in the room. High confidence: photo timestamped seconds ago.`;
+  emit("step", { index: 4, state: "done" });
   emit("answer", { answer, count, pct });
   log(answer, "money");
   await sleep(600);
@@ -264,16 +274,22 @@ async function genericRun(run: RunState) {
   await sleep(800);
   emit("plan", { steps: ["Research the task", "Buy analysis", "Synthesize"] });
   const search = getListing("exa-search")!;
+  emit("step", { index: 0, state: "active" });
   log("[1/3] Need: research → capability: web_search", "think");
   await hireAndPay(run, search, "research");
   await sleep(1000);
+  emit("step", { index: 0, state: "done" });
+  emit("step", { index: 1, state: "active" });
   const llm = cheapest("ai_ml", run.budgetUsd - run.spentUsd);
   if (llm) {
     log(`[2/3] Need: analysis → hiring ${llm.name} (via Pay.sh)`, "think");
     await hireAndPay(run, llm, "analysis");
     await sleep(1000);
   }
+  emit("step", { index: 1, state: "done" });
+  emit("step", { index: 2, state: "active" });
   log("[3/3] Synthesis complete.", "think");
+  emit("step", { index: 2, state: "done" });
   const answer = `Task completed with ${llm ? 2 : 1} workers hired for $${run.spentUsd.toFixed(2)} of a $${run.budgetUsd.toFixed(2)} budget.`;
   emit("answer", { answer });
   finishRun(run, [

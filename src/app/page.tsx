@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import MarketGraph, { GraphListing } from "@/components/MarketGraph";
+import AgentWalkthrough, { Step } from "@/components/AgentWalkthrough";
 
-type LogLine = { text: string; cls: string; ts: number };
 type PaymentLine = { name: string; amountUsd: number; sig: string; kind: string; note: string };
 type Receipt = {
   lines: { name: string; amount: number; kind: string }[];
@@ -17,26 +16,27 @@ type Receipt = {
 const DEFAULT_TASK = "How many people are at Ship Night right now?";
 
 export default function Stage() {
-  const [listings, setListings] = useState<GraphListing[]>([]);
+  const [listingCount, setListingCount] = useState(0);
   const [payshCount, setPayshCount] = useState(0);
   const [task, setTask] = useState(DEFAULT_TASK);
   const [budget, setBudget] = useState(5);
   const [running, setRunning] = useState(false);
-  const [logs, setLogs] = useState<LogLine[]>([]);
+  const [runTask, setRunTask] = useState<string | null>(null);
+  const [steps, setSteps] = useState<Step[]>([]);
+  const [preThoughts, setPreThoughts] = useState<string[]>([]);
   const [payments, setPayments] = useState<PaymentLine[]>([]);
-  const [activeEdges, setActiveEdges] = useState<{ to: string; human: boolean }[]>([]);
   const [spent, setSpent] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [needsApproval, setNeedsApproval] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
-  const consoleRef = useRef<HTMLDivElement>(null);
+  const activeStep = useRef(-1);
 
   useEffect(() => {
     fetch("/api/registry")
       .then((r) => r.json())
       .then((d) => {
-        setListings(d.listings);
+        setListingCount(d.listings.length);
         setPayshCount(d.payshProviders);
       });
   }, []);
@@ -50,26 +50,66 @@ export default function Stage() {
         switch (e.type) {
           case "run_started":
             setRunning(true);
-            setLogs([]);
+            setRunTask(d.task);
+            setSteps([]);
+            setPreThoughts([]);
             setPayments([]);
-            setActiveEdges([]);
             setSpent(0);
             setPhotoUrl(null);
+            setNeedsApproval(false);
             setAnswer(null);
             setReceipt(null);
+            activeStep.current = -1;
             break;
-          case "log":
-            setLogs((l) => [...l, { text: d.text, cls: d.cls, ts: e.ts }]);
+          case "plan":
+            setSteps((d.steps as string[]).map((title) => ({ title, state: "pending", hires: [], thoughts: [] })));
             break;
-          case "hire":
-            setActiveEdges((edges) =>
-              edges.some((x) => x.to === d.to) ? edges : [...edges, { to: d.to, human: d.listing?.kind === "human" }]
+          case "step":
+            activeStep.current = d.state === "active" ? d.index : activeStep.current;
+            setSteps((prev) => prev.map((s, i) => (i === d.index ? { ...s, state: d.state } : s)));
+            break;
+          case "log": {
+            const text = d.text as string;
+            const idx = activeStep.current;
+            if (idx < 0) {
+              setPreThoughts((p) => [...p, text]);
+            } else {
+              setSteps((prev) =>
+                prev.map((s, i) => (i === idx ? { ...s, thoughts: [...s.thoughts, text.replace(/^\[\d+\/\d+\]\s*/, "")] } : s))
+              );
+            }
+            break;
+          }
+          case "hire": {
+            const idx = Math.max(0, activeStep.current);
+            const hire = {
+              name: d.listing?.name ?? d.to,
+              kind: d.listing?.kind ?? "api",
+              source: d.listing?.source,
+              note: d.note,
+            };
+            setSteps((prev) =>
+              prev.map((s, i) =>
+                i === idx && !s.hires.some((h) => h.name === hire.name && h.note === hire.note)
+                  ? { ...s, hires: [...s.hires, hire] }
+                  : s
+              )
             );
             break;
-          case "payment":
+          }
+          case "payment": {
             setPayments((p) => [...p, { name: d.name, amountUsd: d.amountUsd, sig: d.sig, kind: d.kind, note: d.note }]);
             setSpent(d.spentUsd);
+            setSteps((prev) =>
+              prev.map((s) => ({
+                ...s,
+                hires: s.hires.map((h) =>
+                  h.name === d.name && h.amountUsd === undefined ? { ...h, amountUsd: d.amountUsd, sig: d.sig } : h
+                ),
+              }))
+            );
             break;
+          }
           case "photo":
             setPhotoUrl(`${d.url}?t=${Date.now()}`);
             break;
@@ -94,10 +134,6 @@ export default function Stage() {
     return () => es.close();
   }, []);
 
-  useEffect(() => {
-    consoleRef.current?.scrollTo({ top: consoleRef.current.scrollHeight, behavior: "smooth" });
-  }, [logs]);
-
   async function start() {
     await fetch("/api/run", {
       method: "POST",
@@ -118,13 +154,13 @@ export default function Stage() {
         </div>
         <div className="flex items-center gap-4 text-xs text-zinc-500">
           <span>
-            <b className="text-zinc-300">{listings.length}</b> listings
+            <b className="text-zinc-300">{listingCount}</b> listings
           </span>
           <span>
             <b className="text-indigo-400">{payshCount}</b> federated via Pay.sh
           </span>
           <span>
-            <b className="text-emerald-400">{listings.filter((l) => l.kind === "human").length}</b> human worker online
+            <b className="text-emerald-400">1</b> human worker online
           </span>
           <span className="text-zinc-600">USDC · Solana</span>
         </div>
@@ -159,45 +195,22 @@ export default function Stage() {
 
       {/* Body */}
       <div className="flex flex-1 min-h-0">
-        {/* Graph */}
-        <div className="flex-[3] relative border-r border-zinc-900">
-          {listings.length > 0 && <MarketGraph listings={listings} activeEdges={activeEdges} />}
-          {photoUrl && (
-            <div
-              className={`absolute bottom-4 left-4 w-72 rounded-xl overflow-hidden border-2 shadow-2xl bg-zinc-900 ${
-                needsApproval ? "border-amber-400 shadow-amber-500/20" : "border-emerald-400 shadow-emerald-500/20"
-              }`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photoUrl} alt="delivered by human worker" className="w-full" />
-              {needsApproval ? (
-                <div className="p-3">
-                  <div className="text-xs text-amber-300 font-semibold mb-2">
-                    ⏳ Deliverable in escrow — buyer approval required
-                  </div>
-                  <button
-                    onClick={() => fetch("/api/approve", { method: "POST" })}
-                    className="w-full rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold py-2.5 text-sm"
-                  >
-                    ✓ Approve work — release payment
-                  </button>
-                </div>
-              ) : (
-                <div className="px-3 py-2 text-xs text-emerald-300 font-semibold">
-                  📸 Delivered by a human worker · paid in USDC
-                </div>
-              )}
-            </div>
-          )}
-          {answer && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 max-w-xl rounded-xl bg-amber-400 text-zinc-950 font-bold px-6 py-4 text-center shadow-2xl">
-              {answer}
-            </div>
-          )}
+        {/* Agent walkthrough */}
+        <div className="flex-[3] min-h-0 border-r border-zinc-900">
+          <AgentWalkthrough
+            task={runTask}
+            steps={steps}
+            preThoughts={preThoughts}
+            photoUrl={photoUrl}
+            needsApproval={needsApproval}
+            onApprove={() => fetch("/api/approve", { method: "POST" })}
+            answer={answer}
+            running={running}
+          />
         </div>
 
         {/* Right rail */}
-        <div className="flex-[2] flex flex-col min-h-0">
+        <div className="flex-[1.2] flex flex-col min-h-0">
           {/* Budget bar */}
           <div className="px-5 py-3 border-b border-zinc-900">
             <div className="flex justify-between text-xs mb-1.5">
@@ -208,51 +221,37 @@ export default function Stage() {
               </span>
             </div>
             <div className="h-2 rounded-full bg-zinc-900 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-700" style={{ width: `${pct}%` }} />
+              <div
+                className="h-full bg-gradient-to-r from-amber-500 to-amber-300 transition-all duration-700"
+                style={{ width: `${pct}%` }}
+              />
             </div>
           </div>
 
-          {/* Reasoning console */}
-          <div ref={consoleRef} className="flex-1 overflow-y-auto px-5 py-3 font-mono text-[13px] leading-relaxed space-y-1.5">
-            {logs.length === 0 && <div className="text-zinc-600">Reasoning log — give the agent a task to begin.</div>}
-            {logs.map((l, i) => (
-              <div
-                key={i}
-                className={
-                  l.cls === "money"
-                    ? "text-emerald-300"
-                    : l.cls === "alert"
-                    ? "text-amber-300"
-                    : l.cls === "think"
-                    ? "text-zinc-500"
-                    : "text-zinc-300"
-                }
-              >
-                {l.text}
-              </div>
-            ))}
-            {running && <div className="text-zinc-600 animate-pulse">▋</div>}
-          </div>
-
-          {/* Payments / receipt */}
-          <div className="border-t border-zinc-900 px-5 py-3 max-h-64 overflow-y-auto">
+          {/* Payments */}
+          <div className="flex-1 overflow-y-auto px-5 py-3">
             <div className="text-xs text-zinc-500 uppercase tracking-widest mb-2">Payments — Solana</div>
             {payments.length === 0 && <div className="text-xs text-zinc-700">No payments yet.</div>}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {payments.map((p, i) => (
-                <div key={i} className="flex items-center justify-between text-xs">
-                  <span className={p.kind === "human" ? "text-emerald-300" : "text-zinc-300"}>
-                    {p.name}
-                    <span className="text-zinc-600"> · {p.note}</span>
-                  </span>
-                  <span className="font-mono text-zinc-400">
-                    ${p.amountUsd.toFixed(2)} <span className="text-zinc-700">{p.sig.slice(0, 8)}…</span>
-                  </span>
+                <div key={i} className="rounded-lg bg-zinc-900/60 border border-zinc-800/80 px-3 py-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={p.kind === "human" ? "text-emerald-300 font-semibold" : "text-zinc-300"}>
+                      {p.kind === "human" ? "🧑 " : ""}
+                      {p.name}
+                    </span>
+                    <span className="font-mono text-amber-300 font-bold">${p.amountUsd.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-0.5 text-[10px] text-zinc-600">
+                    <span>{p.note}</span>
+                    <span className="font-mono">{p.sig.slice(0, 12)}…</span>
+                  </div>
                 </div>
               ))}
             </div>
+
             {receipt && (
-              <div className="mt-3 rounded-lg bg-zinc-900 border border-zinc-800 p-3 text-xs">
+              <div className="mt-3 rounded-lg bg-zinc-900 border border-amber-400/30 p-3 text-xs">
                 <div className="font-bold text-zinc-200">
                   RECEIPT — {receipt.workers} workers hired · {receipt.humans} human
                 </div>
