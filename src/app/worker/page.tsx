@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 type Job = { jobId: string; description: string; priceUsd: number; workerName: string };
 
-const WORKER_NAME = process.env.NEXT_PUBLIC_WORKER_NAME || "Marcus R.";
+const WORKER_NAME = process.env.NEXT_PUBLIC_WORKER_NAME || "Steven Luongo";
 const START_BALANCE = 12.4;
 
 export default function WorkerPage() {

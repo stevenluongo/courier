@@ -71,7 +71,7 @@ const seeded: Listing[] = [
   },
   {
     id: "human-marcus",
-    name: process.env.NEXT_PUBLIC_WORKER_NAME || "Marcus R.",
+    name: process.env.NEXT_PUBLIC_WORKER_NAME || "Steven Luongo",
     kind: "human",
     capability: "photo",
     priceUsd: 1.5,
