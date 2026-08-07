@@ -1,36 +1,42 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Chargehand — the general contractor for AI agents
 
-## Getting Started
+Give an AI agent one USDC budget on Solana and it hires whoever's best for the job — paid APIs, other agents, or human beings — paying per unit of work, with one receipt for the whole job.
 
-First, run the development server:
+Built at Cursor Miami: Ship Night. See `prd.md` (locked PRD) and `BUILD_PLAN.md`.
+
+## Run it
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run build
+npm start          # production mode — use this on stage, not `npm run dev`
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Big screen**: http://localhost:3000 — market graph (72 live providers federated from Pay.sh + seeded sellers + one human worker), reasoning console, budget bar, receipts.
+- **Worker phone**: http://localhost:3000/worker — open on the worker's phone (same network; use the machine's LAN IP). Shows profile, wallet badge, balance; receives the job push, opens the camera, gets paid on delivery.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## The demo
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Type (or keep) the task **"How many people are at Ship Night right now?"**, budget $5, hit Run:
 
-## Learn More
+1. Agent posts its 5-step plan, buys an event lookup + attendance baseline from a Pay.sh-federated search seller ($0.04).
+2. Realizes no API can observe a private venue → **hires the registered human worker** ($1.50). Their phone buzzes.
+3. Worker shoots the room, delivers; payment releases; the photo lands in the run.
+4. Agent refuses the over-budget vision seller (budget enforced in code), hires the cheap one ($0.40), counts heads.
+5. Answer + receipt: total spent, unused budget returned, every worker listed — one of them human.
 
-To learn more about Next.js, take a look at the following resources:
+Any other task takes a generic research path, so judge-typed tasks always produce a run.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Config (`.env.local`, all optional)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Var | Effect |
+|---|---|
+| `OPENAI_API_KEY` | Real head-count via vision model; otherwise a plausible mock is used |
+| `MOCK_HEADCOUNT` | The mocked count (default 187 — set to your actual eyeball count) |
+| `AUTO_PHOTO_MS` | Failure insurance: auto-continue the human step after N ms (0 = wait forever) |
+| `NEXT_PUBLIC_WORKER_NAME` | The human worker's display name |
 
-## Deploy on Vercel
+## Honest footnotes
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Settlement is **simulated** tonight (mock signatures); routing, budget enforcement, the 402 job flow, and the Pay.sh federation (bundled snapshot of the live catalog) are real. The x402 V2 Solana settlement design is specced in `BUILD_PLAN.md`.
+- The worker page keeps the last capture in localStorage — take a backup photo before the demo and the "Use last capture" button becomes your wifi insurance.
