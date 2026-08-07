@@ -9,7 +9,7 @@ const START_BALANCE = 12.4;
 
 export default function WorkerPage() {
   const [job, setJob] = useState<Job | null>(null);
-  const [phase, setPhase] = useState<"idle" | "offered" | "captured" | "submitted" | "paid">("idle");
+  const [phase, setPhase] = useState<"idle" | "offered" | "captured" | "submitted" | "review" | "paid">("idle");
   const [preview, setPreview] = useState<string | null>(null);
   const [balance, setBalance] = useState(START_BALANCE);
   const [paidAmount, setPaidAmount] = useState(0);
@@ -25,6 +25,9 @@ export default function WorkerPage() {
           setPhase("offered");
           setPreview(null);
           if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
+        }
+        if (e.type === "approval_request") {
+          setPhase("review");
         }
         if (e.type === "job_done") {
           setPaidAmount(e.data.amountUsd);
@@ -146,6 +149,13 @@ export default function WorkerPage() {
 
           {phase === "submitted" && (
             <div className="rounded-2xl border border-zinc-800 p-8 text-center text-zinc-400">Delivering to the agent…</div>
+          )}
+
+          {phase === "review" && (
+            <div className="rounded-2xl border border-amber-500/50 bg-amber-950/30 p-8 text-center text-amber-300">
+              Buyer is reviewing your work…
+              <div className="mt-2 text-xs text-zinc-500">Payment is held in escrow until approval.</div>
+            </div>
           )}
 
           {phase === "paid" && (

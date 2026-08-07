@@ -27,6 +27,7 @@ export default function Stage() {
   const [activeEdges, setActiveEdges] = useState<{ to: string; human: boolean }[]>([]);
   const [spent, setSpent] = useState(0);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [needsApproval, setNeedsApproval] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const consoleRef = useRef<HTMLDivElement>(null);
@@ -71,6 +72,12 @@ export default function Stage() {
             break;
           case "photo":
             setPhotoUrl(`${d.url}?t=${Date.now()}`);
+            break;
+          case "approval_request":
+            setNeedsApproval(true);
+            break;
+          case "job_done":
+            setNeedsApproval(false);
             break;
           case "answer":
             setAnswer(d.answer);
@@ -156,12 +163,30 @@ export default function Stage() {
         <div className="flex-[3] relative border-r border-zinc-900">
           {listings.length > 0 && <MarketGraph listings={listings} activeEdges={activeEdges} />}
           {photoUrl && (
-            <div className="absolute bottom-4 left-4 w-72 rounded-xl overflow-hidden border-2 border-emerald-400 shadow-2xl shadow-emerald-500/20 bg-zinc-900">
+            <div
+              className={`absolute bottom-4 left-4 w-72 rounded-xl overflow-hidden border-2 shadow-2xl bg-zinc-900 ${
+                needsApproval ? "border-amber-400 shadow-amber-500/20" : "border-emerald-400 shadow-emerald-500/20"
+              }`}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={photoUrl} alt="delivered by human worker" className="w-full" />
-              <div className="px-3 py-2 text-xs text-emerald-300 font-semibold">
-                📸 Delivered by a human worker · paid in USDC
-              </div>
+              {needsApproval ? (
+                <div className="p-3">
+                  <div className="text-xs text-amber-300 font-semibold mb-2">
+                    ⏳ Deliverable in escrow — buyer approval required
+                  </div>
+                  <button
+                    onClick={() => fetch("/api/approve", { method: "POST" })}
+                    className="w-full rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold py-2.5 text-sm"
+                  >
+                    ✓ Approve work — release payment
+                  </button>
+                </div>
+              ) : (
+                <div className="px-3 py-2 text-xs text-emerald-300 font-semibold">
+                  📸 Delivered by a human worker · paid in USDC
+                </div>
+              )}
             </div>
           )}
           {answer && (

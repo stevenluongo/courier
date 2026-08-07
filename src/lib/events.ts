@@ -10,6 +10,7 @@ export type ChargehandEvent = {
     | "hire" // seller hired -> graph edge pulse
     | "payment" // payment settled -> receipt line
     | "job_offer" // human worker notification
+    | "approval_request" // deliverable held in escrow, buyer must approve
     | "job_done" // human submitted
     | "photo" // photo available at url
     | "answer" // final synthesis

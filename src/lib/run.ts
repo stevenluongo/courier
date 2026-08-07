@@ -8,10 +8,11 @@ export type RunState = {
   task: string;
   budgetUsd: number;
   spentUsd: number;
-  status: "running" | "waiting_human" | "done";
+  status: "running" | "waiting_human" | "awaiting_approval" | "done";
   pendingJob?: { jobId: string; workerId: string; description: string; priceUsd: number };
   photoDataUrl?: string;
   photoResolver?: (dataUrl: string) => void;
+  approvalResolver?: () => void;
 };
 
 const g = globalThis as unknown as { __chRun?: { current?: RunState } };
@@ -189,12 +190,23 @@ async function crowdCountRun(run: RunState) {
     const autoMs = Number(process.env.AUTO_PHOTO_MS || 0);
     if (autoMs > 0) setTimeout(() => resolve(undefined), autoMs);
   });
-  run.status = "running";
   run.pendingJob = undefined;
   if (photo) {
     run.photoDataUrl = photo;
     emit("photo", { url: "/api/photo" });
   }
+
+  // Buyer approval gate: payment is held until the work is approved on the big screen.
+  log("Deliverable received — held in escrow, awaiting buyer approval…", "alert");
+  run.status = "awaiting_approval";
+  emit("approval_request", { jobId, workerId: human.id, workerName: human.name, priceUsd: human.priceUsd });
+  await new Promise<void>((resolve) => {
+    run.approvalResolver = resolve;
+  });
+  run.status = "running";
+  run.approvalResolver = undefined;
+  log("Work APPROVED by buyer — releasing payment from escrow.", "money");
+  await sleep(600);
 
   const sig = mockTxSig(human.id + jobId);
   run.spentUsd = Math.round((run.spentUsd + human.priceUsd) * 100) / 100;
@@ -287,5 +299,12 @@ export function submitPhoto(dataUrl: string) {
   const run = store.current;
   if (!run || run.status !== "waiting_human") return false;
   run.photoResolver?.(dataUrl);
+  return true;
+}
+
+export function approveWork() {
+  const run = store.current;
+  if (!run || run.status !== "awaiting_approval") return false;
+  run.approvalResolver?.();
   return true;
 }
