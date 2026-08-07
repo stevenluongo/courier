@@ -1,0 +1,257 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Chargehand — 3 min</title>
+<style>
+  @page { size: 100mm 178mm; margin: 7mm 6mm; }
+
+  :root {
+    --bg:#06080c; --fg:#eef2f7; --dim:#7d8797;
+    --cyan:#22d3ee; --amber:#fbbf24; --red:#fb7185; --gold:#eab308;
+    --line:#1b2331;
+  }
+  * { box-sizing:border-box; }
+  html,body { margin:0; padding:0; background:var(--bg); color:var(--fg);
+    font-family:-apple-system,'SF Pro Text',Helvetica,Arial,sans-serif;
+    font-size:11.5pt; line-height:1.42; -webkit-font-smoothing:antialiased; }
+
+  section { page-break-inside:avoid; break-inside:avoid; margin-bottom:9mm;
+            padding-left:1.2mm; }
+  .newpage { page-break-before:always; break-before:page; }
+
+  h1 { font-size:20pt; margin:0 0 1mm; letter-spacing:-0.5pt; }
+  h2 { font-size:9pt; text-transform:uppercase; letter-spacing:1.4pt;
+       color:var(--dim); margin:0 0 2.5mm; font-weight:600;
+       border-bottom:1px solid var(--line); padding:0 0 1.5mm 0.8mm; }
+  h3 { font-size:11pt; margin:4mm 0 1.5mm; color:var(--cyan); }
+
+  .t { display:inline-block; font-family:ui-monospace,Menlo,monospace;
+       background:var(--cyan); color:#04141a; font-weight:700;
+       padding:0.5mm 2mm; border-radius:1mm; font-size:9pt; margin-right:2mm; }
+
+  .say { font-size:12.5pt; font-weight:600; line-height:1.34; margin:2mm 0; }
+  .say::before { content:"“"; color:var(--dim); }
+  .say::after  { content:"”"; color:var(--dim); }
+
+  .do { color:var(--amber); font-size:10.5pt; margin:1.5mm 0; }
+  .do::before { content:"▸ "; }
+
+  ul { margin:1.5mm 0; padding-left:5mm; }
+  li { margin:1mm 0; }
+  .dim { color:var(--dim); }
+  .sm { font-size:10pt; }
+  .mono { font-family:ui-monospace,Menlo,monospace; font-size:9.5pt; }
+
+  .kill { border-left:3px solid var(--cyan); padding:2mm 0 2mm 3mm;
+          background:#08191f; margin:3mm 0; font-size:12.5pt; font-weight:600; }
+
+  .q { font-weight:700; color:var(--amber); margin:3.5mm 0 1mm; font-size:11pt; }
+  .a { margin:0 0 1mm; font-size:10.5pt; }
+  .a::before { content:"→ "; color:var(--cyan); }
+
+  .panic { border:1px solid var(--red); border-radius:2mm; padding:3mm; }
+  .panic .q { color:var(--red); }
+
+  .hot { border:1px solid var(--gold); border-radius:2mm; padding:3mm;
+         background:#17140444; }
+  .hot .q { color:var(--gold); margin-top:0; }
+
+  .flow { font-family:ui-monospace,Menlo,monospace; font-size:9.5pt;
+          line-height:1.7; }
+  .flow b { color:var(--cyan); }
+  .flow .h { color:var(--amber); }
+</style>
+</head>
+<body>
+
+<!-- ───────────────────────────── AT A GLANCE ───────────────────────────── -->
+<section>
+  <h1>Chargehand</h1>
+  <div class="dim sm">The general contractor for AI agents.<br>One budget. It hires APIs, agents, and people.</div>
+
+  <h2 style="margin-top:5mm">Shape of the 3 minutes</h2>
+  <div class="flow">
+    <b>0:00</b> &nbsp;Hook — AI can't buy anything<br>
+    <b>0:25</b> &nbsp;DEMO — one task, one budget<br>
+    <b>1:50</b> &nbsp;What's real<br>
+    <b>2:15</b> &nbsp;The market + the money<br>
+    <b>2:40</b> &nbsp;Close
+  </div>
+
+  <div class="kill">It&rsquo;s a money problem wearing a technology costume.</div>
+  <div class="sm dim">Best line in the deck. Use it early, use it once.</div>
+</section>
+
+<!-- ───────────────────────────── HOOK ──────────────────────────────────── -->
+<section class="newpage">
+  <h2><span class="t">0:00</span> Hook</h2>
+
+  <div class="say">AI can think. It can&rsquo;t buy anything.</div>
+  <div class="say">Every tool your agent can reach, a human wired up in advance — signed up, got a key, put a card on file.</div>
+  <div class="say">That&rsquo;s the ceiling on agents. Not intelligence. Purchasing.</div>
+
+  <div class="kill">It&rsquo;s a money problem wearing a technology costume.</div>
+
+  <p class="sm dim">Straight into the demo. The graph is already moving — do not explain the graph.</p>
+</section>
+
+<!-- ───────────────────────────── DEMO ──────────────────────────────────── -->
+<section class="newpage">
+  <h2><span class="t">0:25</span> Demo — the setup</h2>
+
+  <div class="do">Graph already live on screen. Don't narrate it.</div>
+  <div class="say">One task. One five-dollar budget. Nothing pre-wired.</div>
+
+  <div class="do">Task: "How many people are at Ship Night right now?" &nbsp;Run.</div>
+
+  <div class="flow" style="margin-top:3mm">
+    <b>1.</b> plan posted &mdash; 5 steps<br>
+    <b>2.</b> buys event lookup &nbsp;<span class="dim">$0.04</span><br>
+    <span class="h">3. no API can see this room &rarr; hires a HUMAN &nbsp;$1.50</span><br>
+    <b>4.</b> refuses over-budget vision seller<br>
+    <b>5.</b> hires the cheap one &nbsp;<span class="dim">$0.40</span><br>
+    <b>6.</b> answer + receipt
+  </div>
+</section>
+
+<section>
+  <h2><span class="t">1:00</span> Demo — the two beats</h2>
+
+  <h3>The human beat</h3>
+  <div class="do">Phone buzzes. Someone in the room shoots it. Delivers. Paid.</div>
+  <div class="say">No API on earth can see inside this room. So it hired a person — and paid them a dollar fifty, per unit of work, no contract.</div>
+
+  <h3>The budget beat</h3>
+  <div class="do">Agent refuses the expensive seller.</div>
+  <div class="say">It just turned down a seller it couldn&rsquo;t afford. That&rsquo;s enforced in code, not in a prompt — the agent cannot talk its way past the cap.</div>
+
+  <div class="kill">A market clearing in real time. Not a script.</div>
+</section>
+
+<!-- ───────────────────────────── WHAT'S REAL ───────────────────────────── -->
+<section class="newpage">
+  <h2><span class="t">1:50</span> What&rsquo;s real — volunteer it</h2>
+
+  <ul class="sm">
+    <li><b>72 live providers</b> federated from Pay.sh &mdash; Solana Foundation + Google Cloud's catalog, as supply</li>
+    <li><b>Budget enforced in code</b> &mdash; not a prompt instruction</li>
+    <li><b>402 job flow + human hire</b> &mdash; real end to end</li>
+    <li class="dim"><b>Settlement is simulated tonight.</b> x402 V2 SVM is specced exactly — TransferChecked + memo, self-facilitated.</li>
+  </ul>
+
+  <div class="say">Moving a dollar on Solana is the part we know how to do. Deciding <i>who</i> to pay, refusing what you can&rsquo;t afford, and hiring a human when software runs out — that&rsquo;s the part nobody has built.</div>
+
+  <p class="sm dim">Volunteering this costs you 8 seconds. Getting caught on it costs you the room.</p>
+</section>
+
+<!-- ───────────────────────────── MARKET ────────────────────────────────── -->
+<section>
+  <h2><span class="t">2:15</span> The market and the money</h2>
+
+  <ul class="sm">
+    <li>Take rate <b>2–5%</b> of marketplace volume. No invented model.</li>
+    <li>x402: <b>~165M agent transactions, ~$50M</b> cumulative by Apr 2026 — Solana about half</li>
+    <li>New supply side: a solo dev lists a capability and earns from customers who are <i>software</i></li>
+  </ul>
+
+  <div class="say">Pay.sh is a catalog — it tells an agent what exists. A market has routing, reputation, refunds, budget policy, and human sellers. We federate their supply and build the layer above it.</div>
+</section>
+
+<section>
+  <h2><span class="t">2:40</span> Close</h2>
+
+  <div class="do">Point at the receipt: every worker listed, one of them human.</div>
+  <div class="say">No contracts. No API keys. No accounts.</div>
+  <div class="kill">Agents can&rsquo;t get bank accounts. And they never will.</div>
+
+  <p class="sm"><b>Ask:</b> sellers to list, and agent teams to route through us.</p>
+</section>
+
+<!-- ───────────────────────────── REBUTTAL: THE BIG ONE ─────────────────── -->
+<section class="newpage">
+  <h2>The question you will get</h2>
+
+  <div class="hot">
+    <div class="q">"So no money actually moved?"</div>
+    <div class="a">Correct — tonight signatures are mocked. Routing, the budget cap, the 402 flow, the human hire, and the Pay.sh federation are all real.</div>
+    <div class="a">The settlement is specced to x402 V2's SVM scheme: three headers, TransferChecked plus a memo for replay protection, self-facilitated so there's no third party. It's about a hundred lines and it's written down.</div>
+    <div class="a">We spent the night on the part that isn't solved. Payments are.</div>
+  </div>
+
+  <p class="sm dim">Say it flat and move on. Don't over-explain, don't apologize twice, don't let it eat your Q&amp;A.</p>
+
+  <p class="sm">If you wire real devnet settlement before you pitch, <b>delete this page</b> and put "real USDC on devnet, here's the explorer link" on the What's Real page instead. It is the highest-value hour you have left.</p>
+</section>
+
+<!-- ───────────────────────────── REBUTTALS ─────────────────────────────── -->
+<section class="newpage">
+  <h2>Rebuttals</h2>
+
+  <div class="q">Isn't this just Pay.sh?</div>
+  <div class="a">Pay.sh is a catalog — what exists, at what price. A market adds routing, reputation, refund-on-failure, budget policy, and human supply. We federate their 72 providers rather than compete with them.</div>
+
+  <div class="q">Isn't this just x402?</div>
+  <div class="a">x402 is the handshake, not the marketplace. It's the rail. Rails commoditize; the trust layer on top keeps its margin.</div>
+
+  <div class="q">Why not give the agent a credit card?</div>
+  <div class="a">Cards can't process a third of a cent — the fee exceeds the charge. And no bank issues an account to software.</div>
+
+  <div class="q">Why does this need a chain at all?</div>
+  <div class="a">Software has to hold money and pay other software, in fractions of a cent, instantly, with no account relationship. Nothing else does all four.</div>
+
+  <div class="q">What stops sellers returning garbage?</div>
+  <div class="a">Reputation from transaction history and escrow with refund-on-failure — 30-day roadmap. Tonight the budget cap is the guard.</div>
+</section>
+
+<section>
+  <h2>Rebuttals — cont.</h2>
+
+  <div class="q">Prompt injection from seller responses?</div>
+  <div class="a">Seller output is treated as untrusted data, never as instructions. Schema-validated, sandboxed.</div>
+
+  <div class="q">Cold start — where's the supply?</div>
+  <div class="a">72 providers on night one, federated. The supply problem is the one we didn't have to solve.</div>
+
+  <div class="q">The human step is slow.</div>
+  <div class="a">It's the path for what no API can do. The alternative isn't faster — it's the task failing.</div>
+
+  <div class="q">Stripe, Coinbase, Visa are all shipping this.</div>
+  <div class="a">They're shipping rails. Rails commoditize. The market and the reputation layer is a different business — and it's only earnable over transaction history.</div>
+
+  <div class="q">Is the head count real?</div>
+  <div class="a">Real vision model if the key's live, otherwise a stated mock. Know which mode you're in before you walk up — don't guess on stage.</div>
+</section>
+
+<!-- ───────────────────────────── PANIC ─────────────────────────────────── -->
+<section class="newpage">
+  <h2>If something breaks</h2>
+
+  <div class="panic">
+    <div class="q">Worker phone / camera fails</div>
+    <div class="a">"Use last capture" button. Take the backup photo BEFORE you go up.</div>
+
+    <div class="q">Human step hangs</div>
+    <div class="a">AUTO_PHOTO_MS auto-continues. Let it. Keep talking.</div>
+
+    <div class="q">Judge types their own task</div>
+    <div class="a">Generic research path always produces a run. Let them.</div>
+
+    <div class="q">Graph stalls / SSE drops</div>
+    <div class="a">Reload the big screen. The receipt is the payload, not the animation.</div>
+  </div>
+
+  <h3>Don't</h3>
+  <ul class="sm">
+    <li>Don't explain the graph — let it move behind you</li>
+    <li>Don't say "marketplace" more than twice</li>
+    <li>Don't demo before saying what's simulated</li>
+    <li>Don't read the 5 steps aloud — they're on screen</li>
+    <li>Don't let the settlement question eat Q&amp;A. One answer, move on.</li>
+  </ul>
+
+  <p class="sm dim">Name check: README says Chargehand, PRD says Bazaar. Pick one before you go up.</p>
+</section>
+
+</body>
+</html>
