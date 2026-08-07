@@ -17,6 +17,10 @@
 
 *Built in one night at **Cursor Miami: Ship Night** — Wynwood, August 6, 2026*
 
+### 🔴 LIVE: [courier-production-ab9b.up.railway.app](https://courier-production-ab9b.up.railway.app/)
+
+**Big screen:** [/](https://courier-production-ab9b.up.railway.app/) · **Worker phone:** [/worker](https://courier-production-ab9b.up.railway.app/worker)
+
 </div>
 
 ---
@@ -68,10 +72,10 @@ npm start        # production mode — use this on stage, never `npm run dev`
 
 | Screen | URL | What it shows |
 |---|---|---|
-| **Big screen** | `http://localhost:3000` | Live market graph, reasoning console, budget bar, receipts, approval gate |
-| **Worker phone** | `http://localhost:3000/worker` | Worker profile, wallet badge, job notifications, camera, instant payout |
+| **Big screen** | [`/`](https://courier-production-ab9b.up.railway.app/) | Live market graph, reasoning console, budget bar, receipts, approval gate |
+| **Worker phone** | [`/worker`](https://courier-production-ab9b.up.railway.app/worker) | Worker profile, wallet badge, job notifications, camera, instant payout |
 
-Phone on another network? Tunnel it: `ngrok http 3000` and open the ngrok URL on the phone.
+Hosted on Railway (persistent Node process — required for the SSE stream and in-memory run engine). Running locally: same paths on `http://localhost:3000`.
 
 ### Configuration (`.env.local` — all optional)
 
