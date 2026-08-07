@@ -6,7 +6,6 @@ export type ChargehandEvent = {
   type:
     | "run_started"
     | "log" // reasoning console line
-    | "step" // { index, state: "active" | "done" }
     | "plan"
     | "hire" // seller hired -> graph edge pulse
     | "payment" // payment settled -> receipt line
